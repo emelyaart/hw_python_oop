@@ -33,20 +33,20 @@ class CashCalculator(Calculator):
     def get_today_cash_remained(self, currency):
         today_stats = self.get_today_stats()
         remainder = abs(round(self.get_reminded(), 2))
-        remainders = {
+        currencies = {
             'rub': str(remainder) + ' руб',
             'usd': str(round(remainder / self.USD_RATE, 2)) + ' USD',
             'eur': str(round(remainder / self.EURO_RATE, 2)) + ' Euro'
         }
         if today_stats < self.limit:
-            if currency in remainders:
-                return 'На сегодня осталось {}'.format(remainders[currency])
-            return ("Валюта введена не корректно, введит одно из"
+            if currency in currencies:
+                return 'На сегодня осталось {}'.format(currencies[currency])
+            return ("Валюта введена некорректно, введитe одно из"
                     " следующих значений: 'rub', 'usd' или 'eur'")
         elif today_stats > self.limit:
-            if currency in remainders:
+            if currency in currencies:
                 return 'Денег нет, держись: твой долг - {}'.format(
-                    remainders[currency])
+                    currencies[currency])
         else:
             return 'Денег нет, держись'
 
