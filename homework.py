@@ -8,12 +8,12 @@ class Calculator:
         self.records = []
 
     def get_today_stats(self):
-        today = dt.datetime.now().date()
+        today = dt.date.today()
         return sum([record.amount for record in self.records
                     if today == record.date])
 
     def get_week_stats(self):
-        today = dt.datetime.now().date()
+        today = dt.date.today()
         week_ago = today - dt.timedelta(days=7)
         return sum([record.amount for record in self.records
                     if today >= record.date >= week_ago])
