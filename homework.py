@@ -9,14 +9,14 @@ class Calculator:
 
     def get_today_stats(self):
         today = dt.date.today()
-        return sum([record.amount for record in self.records
-                    if today == record.date])
+        return sum(record.amount for record in self.records
+                   if today == record.date)
 
     def get_week_stats(self):
         today = dt.date.today()
         week_ago = today - dt.timedelta(days=7)
-        return sum([record.amount for record in self.records
-                    if today >= record.date >= week_ago])
+        return sum(record.amount for record in self.records
+                   if today >= record.date >= week_ago)
 
     def add_record(self, record):
         self.records.append(record)
@@ -27,38 +27,44 @@ class Calculator:
 
 class CashCalculator(Calculator):
 
+    RUB_RATE = 1
     EURO_RATE = 90.53
     USD_RATE = 76.61
 
     def get_today_cash_remained(self, currency):
-        today_stats = self.get_today_stats()
-        remainder = abs(round(self.get_reminded(), 2))
+        remainder = self.get_reminded()
+        # Правильно я Вас понял? С этим возникли сложности :)
         currencies = {
-            'rub': str(remainder) + ' руб',
-            'usd': str(round(remainder / self.USD_RATE, 2)) + ' USD',
-            'eur': str(round(remainder / self.EURO_RATE, 2)) + ' Euro'
+            'rub': (abs(round(remainder / self.RUB_RATE, 2)), 'руб'),
+            'usd': (abs(round(remainder / self.USD_RATE, 2)), 'USD'),
+            'eur': (abs(round(remainder / self.EURO_RATE, 2)), 'Euro')
         }
-        if today_stats < self.limit:
-            if currency in currencies:
-                return 'На сегодня осталось {}'.format(currencies[currency])
-            return ("Валюта введена некорректно, введитe одно из"
-                    " следующих значений: 'rub', 'usd' или 'eur'")
-        elif today_stats > self.limit:
-            if currency in currencies:
-                return 'Денег нет, держись: твой долг - {}'.format(
-                    currencies[currency])
-        else:
+        try:
+            if currency not in currencies:
+                raise ValueError
+        except ValueError:
+            currencies_key = ', '.join(list(currencies))
+            return (f"Вы ввели '{ currency }'', введитe одно из "
+                    f"следующих значений: { currencies_key }")
+        if remainder == 0:
             return 'Денег нет, держись'
+        if remainder > 0:
+            return ('На сегодня осталось '
+                    f'{ currencies[currency][0] } '
+                    f'{ currencies[currency][1] }')
+        if remainder < 0:
+            return ('Денег нет, держись: твой долг - '
+                    f'{ currencies[currency][0] } '
+                    f'{ currencies[currency][1] }')
 
 
 class CaloriesCalculator(Calculator):
 
     def get_calories_remained(self):
-        today_stats = self.get_today_stats()
         remainder = self.get_reminded()
-        if today_stats < self.limit:
+        if remainder > 0:
             return ('Сегодня можно съесть что-нибудь ещё, но '
-                    'с общей калорийностью не более {} кКал').format(remainder)
+                    f'с общей калорийностью не более { remainder } кКал')
         return 'Хватит есть!'
 
 
