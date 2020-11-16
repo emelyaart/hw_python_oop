@@ -33,29 +33,28 @@ class CashCalculator(Calculator):
 
     def get_today_cash_remained(self, currency):
         remainder = self.get_reminded()
-        # Правильно я Вас понял? С этим возникли сложности :)
-        currencies = {
-            'rub': (abs(round(remainder / self.RUB_RATE, 2)), 'руб'),
-            'usd': (abs(round(remainder / self.USD_RATE, 2)), 'USD'),
-            'eur': (abs(round(remainder / self.EURO_RATE, 2)), 'Euro')
-        }
-        try:
-            if currency not in currencies:
-                raise ValueError
-        except ValueError:
-            currencies_key = ', '.join(list(currencies))
-            return (f"Вы ввели '{ currency }'', введитe одно из "
-                    f"следующих значений: { currencies_key }")
         if remainder == 0:
             return 'Денег нет, держись'
+        currencies = {
+            'rub': (self.RUB_RATE, 'руб'),
+            'usd': (self.USD_RATE, 'USD'),
+            'eur': (self.EURO_RATE, 'Euro')
+        }
+        if currency not in currencies:
+            keys = ', '.join(list(currencies))
+            raise ValueError('Вы ввели "%s", введитe одно из '
+                             'следующих значений: %s' % (currency, keys))
+        # Спасибо за это :) Незнал этой фишки, либо не запомнил
+        currency_rate, currency_name = currencies[currency]
+        currency_convert = abs(round(remainder / currency_rate, 2))
         if remainder > 0:
             return ('На сегодня осталось '
-                    f'{ currencies[currency][0] } '
-                    f'{ currencies[currency][1] }')
+                    f'{currency_convert} '
+                    f'{currency_name}')
         if remainder < 0:
             return ('Денег нет, держись: твой долг - '
-                    f'{ currencies[currency][0] } '
-                    f'{ currencies[currency][1] }')
+                    f'{currency_convert} '
+                    f'{currency_name}')
 
 
 class CaloriesCalculator(Calculator):
@@ -64,7 +63,7 @@ class CaloriesCalculator(Calculator):
         remainder = self.get_reminded()
         if remainder > 0:
             return ('Сегодня можно съесть что-нибудь ещё, но '
-                    f'с общей калорийностью не более { remainder } кКал')
+                    f'с общей калорийностью не более {remainder} кКал')
         return 'Хватит есть!'
 
 
